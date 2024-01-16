@@ -107,6 +107,10 @@ venv.bak/
 /data
 .vscode
 .idea
+.DS_Store
+._*
+
+# custom
 *.pkl
 *.pkl.json
 *.log.json
