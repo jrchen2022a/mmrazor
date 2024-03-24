@@ -91,6 +91,7 @@ class SingleTeacherDistill(BaseAlgorithm):
 
         # may be modified by stop distillation hook
         self.distillation_stopped = False
+        self.distillation_loss_weight = 1.0
 
     @property
     def student(self) -> nn.Module:
@@ -142,7 +143,7 @@ class SingleTeacherDistill(BaseAlgorithm):
             # Automatically compute distill losses based on
             # `loss_forward_mappings`.
             # The required data already exists in the recorders.
-            distill_losses = self.distiller.compute_distill_losses()
+            distill_losses = self.distillation_loss_weight * self.distiller.compute_distill_losses()
             losses.update(add_prefix(distill_losses, 'distill'))
 
         return losses
