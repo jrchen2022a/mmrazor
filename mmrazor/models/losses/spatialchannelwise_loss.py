@@ -42,9 +42,11 @@ class SpatialChannelWiseDivergence(nn.Module):
         softmax_channel_mask_T = F.softmax(channel_mask_T / self.tau, dim=1)
         softmax_spatial_mask_T = F.softmax(spatial_mask_T.view(-1, W * H) / self.tau, dim=1)
         logsoftmax = torch.nn.LogSoftmax(dim=1)
-        loss_c = torch.sum(softmax_channel_mask_T * logsoftmax(channel_mask_T / self.tau) - softmax_channel_mask_T * logsoftmax(channel_mask_S / self.tau))
-        loss_s = torch.sum(softmax_spatial_mask_T * logsoftmax(spatial_mask_T.view(-1, W * H) / self.tau) - softmax_spatial_mask_T * logsoftmax(
-            spatial_mask_S.view(-1, W * H) / self.tau))
-        loss = self.loss_weight * (loss_c + loss_s) * (self.tau ** 2) / (C * N)
+        loss_c = torch.sum(softmax_channel_mask_T * logsoftmax(channel_mask_T / self.tau)
+                           - softmax_channel_mask_T * logsoftmax(channel_mask_S / self.tau)) * (self.tau ** 2)
+        loss_s = torch.sum(softmax_spatial_mask_T * logsoftmax(spatial_mask_T.view(-1, W * H) / self.tau)
+                           - softmax_spatial_mask_T * logsoftmax(
+                            spatial_mask_S.view(-1, W * H) / self.tau)) * (self.tau ** 2)
+        loss = self.loss_weight * (loss_c + loss_s) / N
 
         return loss

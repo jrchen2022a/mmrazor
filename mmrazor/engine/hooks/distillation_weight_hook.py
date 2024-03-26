@@ -1,8 +1,13 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+import math
+
 from mmengine.hooks import Hook
 from mmengine.model import is_model_wrapper
 
 from mmrazor.registry import HOOKS
+
+
+def getOneCycleDescend(epoch, epochs) -> float:
+    return 1 - round(1/2*(1-math.cos((math.pi * epoch)/epochs)), 2)
 
 
 @HOOKS.register_module()
@@ -25,7 +30,6 @@ class DistillWeightHook(Hook):
             assert hasattr(model, 'distillation_stopped')
 
             if not model.distillation_stopped:
-                updated_weight = round(1.0 - (runner.epoch - self.start_epoch)/self.delta , 2)
-                runner.logger.info(f'Distillation loss change to {updated_weight}.')
+                updated_weight = getOneCycleDescend(runner.epoch - self.start_epoch, self.delta)
+                runner.logger.info(f'Distillation loss weight change to {updated_weight}.')
                 model.distillation_loss_weight = model.distillation_loss_weight
-
